@@ -1,0 +1,24 @@
+# Bunte Schule Währing — Außerschulische Angebote 2026/27
+
+Ez az oldal a szülőknek átadott 2026/27-es programforrások magyarázatos összefoglalója.
+
+## Tartalom
+- 13 programbejegyzés az iskola „Außerschulische Angebote Übersicht 2026/27” Excel-fájljából.
+- Részletes kiegészítés a Singschule Wien, Schulschach és Football School szórólapokból.
+- Kereshető és szűrhető nézet osztály, nap és programtípus szerint.
+- Külön 1. osztályos gyorsnézet.
+
+## Forráskezelés
+A források közötti eltéréseket az oldal nem javítja találgatással. Az eltérő, hiányos vagy időrendben hibás adatok „Ellenőrizendő” jelzést kapnak.
+
+## Fontos forráseltérések
+- Football School: az Excel 17:00–17:50, a részletes szórólap 17:00–18:00 időt közöl.
+- Sakk: az Excel szerda 15:00–15:50, a részletes szórólap szerda 13:00–15:50 kurzusablakot közöl.
+- Kreativer Kunst Klub: az Excelben a végdátum korábbi a kezdési dátumnál; tényleges záródátum ellenőrizendő.
+- Zongora – Negar Wagner: az Excelben szereplő kezdés/vége a 2025/26-os tanévre mutat; 2026/27-es aktualitás ellenőrizendő.
+
+## Jelentkezés
+A programokhoz tartozó jelentkezési módot az egyes kártyák tartalmazzák. A jelentkezés előtt az aktuális időpontot, díjat és szabad helyet az iskola vagy a szolgáltató erősítse meg.
+
+## Technikai megjegyzés
+A weboldal statikus és külső követőkód nélkül működik. Egyedi domain később kerül beállításra.
