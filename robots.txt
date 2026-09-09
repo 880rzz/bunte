@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-# Sitemap will be added when the final custom domain is configured.
+Sitemap: https://bunte.vipach.at/sitemap.xml
