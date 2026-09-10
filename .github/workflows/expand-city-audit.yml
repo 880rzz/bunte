@@ -1,0 +1,131 @@
+name: Expand city programmes and strict audit
+
+on:
+  push:
+    paths:
+      - ".github/workflows/expand-city-audit.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  expand-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Expand official citywide programme directory
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          blocks = {
+          'stadt-wien/index.html': '''<!-- official-citywide-additions-20260910 -->
+          <article class="card"><h3>WIENXTRA Kinderaktiv</h3><p><b>Kor:</b> családok és gyerekek; az egyes programok saját korhatárral jelennek meg. <b>Kínálat:</b> egész évben kedvező árú vagy ingyenes bécsi kulturális, sport-, természet-, játék-, kézműves és családi programok.</p><p><b>Időpont/helyszín:</b> folyamatosan változó, egész Bécsre kiterjedő havi program. A hivatalos naptárban kor, dátum, helyszín és ingyenesség szerint lehet szűrni. <b>Kapcsolat:</b> WIENXTRA-Kinderaktiv, Lassallestraße 3, 1020 Wien · kinderaktiv@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Aktuális Kinderaktiv-programok</a> · <a href="https://wienxtra.at/kinderaktiv/app/" target="_blank" rel="noopener noreferrer">Kinderaktiv-App</a></p></article>
+          <article class="card"><h3>WIENXTRA Ferienspiel</h3><p><b>Kor:</b> 6–13 év. <b>Kínálat:</b> iskolai szünetekben játék, kreatív foglalkozás, felfedezés és kutatás, színház, mozi, múzeum, sport és akcióprogramok; sok esemény ingyenes vagy kedvezményes.</p><p><b>Időpont/helyszín:</b> a téli, félévi és nyári szünetben, Bécs-szerte. 2026 nyarán több mint 130 programot hirdettek meg. <b>Kapcsolat:</b> WIENXTRA-Ferienspiel, Lassallestraße 3, 1020 Wien · +43 1 909 4000 84396 · ferienspiel@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Ferienspiel és aktuális programok</a></p></article>
+          <article class="card"><h3>Büchereien Wien – gyermekprogramok</h3><p><b>Kor:</b> 0–14 év. <b>Kínálat:</b> egész éves gyermek- és ifjúsági program, felolvasások, zenei és kreatív események, kutatóműhelyek, társasjátékos programok és időszakos projektek.</p><p><b>Időpont/helyszín:</b> a bécsi könyvtári hálózat különböző fiókjaiban; a konkrét időpontok az eseménynaptárban jelennek meg. <b>Megjegyzés:</b> a programok dinamikusan frissülnek, ezért csak a hivatalos naptár aktuális adata tekintendő véglegesnek.</p><p><a href="https://buechereien.wien.gv.at/B%C3%BCchereien-Wien/Veranstaltungen/Kinder" target="_blank" rel="noopener noreferrer">Büchereien Wien – gyermekesemények</a></p></article>
+          ''',
+          'de/stadt-wien/index.html': '''<!-- official-citywide-additions-20260910 -->
+          <article class="card"><h3>WIENXTRA Kinderaktiv</h3><p><b>Zielgruppe:</b> Familien und Kinder; einzelne Veranstaltungen haben eigene Altersangaben. <b>Angebot:</b> ganzjährig günstige oder kostenlose Kultur-, Sport-, Natur-, Spiel-, Kreativ- und Familienangebote in Wien.</p><p><b>Termine/Orte:</b> laufend wechselndes Monatsprogramm in ganz Wien. Im offiziellen Kalender kann nach Alter, Datum, Standort und kostenlosen Angeboten gefiltert werden. <b>Kontakt:</b> WIENXTRA-Kinderaktiv, Lassallestraße 3, 1020 Wien · kinderaktiv@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Aktuelles Kinderaktiv-Programm</a> · <a href="https://wienxtra.at/kinderaktiv/app/" target="_blank" rel="noopener noreferrer">Kinderaktiv-App</a></p></article>
+          <article class="card"><h3>WIENXTRA Ferienspiel</h3><p><b>Alter:</b> 6–13 Jahre. <b>Angebot:</b> in den Schulferien Spielen und Basteln, Entdecken und Forschen, Theater, Kino, Museum, Sport und Action; viele Angebote sind kostenlos oder vergünstigt.</p><p><b>Termine/Orte:</b> in Winter-, Semester- und Sommerferien an Standorten in ganz Wien. Im Sommer 2026 wurden mehr als 130 Aktionen angeboten. <b>Kontakt:</b> WIENXTRA-Ferienspiel, Lassallestraße 3, 1020 Wien · +43 1 909 4000 84396 · ferienspiel@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Ferienspiel und aktuelle Aktionen</a></p></article>
+          <article class="card"><h3>Büchereien Wien – Kinderprogramm</h3><p><b>Alter:</b> 0–14 Jahre. <b>Angebot:</b> ganzjähriges Kinder- und Jugendprogramm mit Lesungen, Musik- und Kreativveranstaltungen, Forschungswerkstätten, Brettspielangeboten und saisonalen Projekten.</p><p><b>Termine/Orte:</b> in verschiedenen Zweigstellen der Büchereien Wien; konkrete Termine stehen im Veranstaltungskalender. <b>Hinweis:</b> das Programm wird laufend aktualisiert, daher ist der offizielle Kalender maßgeblich.</p><p><a href="https://buechereien.wien.gv.at/B%C3%BCchereien-Wien/Veranstaltungen/Kinder" target="_blank" rel="noopener noreferrer">Büchereien Wien – Kinderveranstaltungen</a></p></article>
+          ''',
+          'en/stadt-wien/index.html': '''<!-- official-citywide-additions-20260910 -->
+          <article class="card"><h3>WIENXTRA Kinderaktiv</h3><p><b>Target group:</b> families and children; individual events specify their own age ranges. <b>Offer:</b> year-round low-cost or free culture, sport, nature, games, creative activities and family events across Vienna.</p><p><b>Dates/locations:</b> a continuously changing monthly programme across the city. The official calendar can be filtered by age, date, location and free events. <b>Contact:</b> WIENXTRA-Kinderaktiv, Lassallestraße 3, 1020 Vienna · kinderaktiv@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Current Kinderaktiv programme</a> · <a href="https://wienxtra.at/kinderaktiv/app/" target="_blank" rel="noopener noreferrer">Kinderaktiv app</a></p></article>
+          <article class="card"><h3>WIENXTRA Ferienspiel</h3><p><b>Age:</b> 6–13. <b>Offer:</b> during school holidays: games and crafts, discovery and science, theatre, cinema, museums, sport and action activities; many events are free or discounted.</p><p><b>Dates/locations:</b> during winter, semester and summer holidays at locations across Vienna. More than 130 activities were announced for summer 2026. <b>Contact:</b> WIENXTRA-Ferienspiel, Lassallestraße 3, 1020 Vienna · +43 1 909 4000 84396 · ferienspiel@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Ferienspiel and current activities</a></p></article>
+          <article class="card"><h3>Vienna Libraries – children’s programme</h3><p><b>Age:</b> 0–14. <b>Offer:</b> a year-round children’s and youth programme including readings, music and creative events, discovery workshops, board-game sessions and seasonal projects.</p><p><b>Dates/locations:</b> across branches of Vienna Libraries; exact dates appear in the official events calendar. <b>Note:</b> the programme changes continuously, so the official calendar is authoritative.</p><p><a href="https://buechereien.wien.gv.at/B%C3%BCchereien-Wien/Veranstaltungen/Kinder" target="_blank" rel="noopener noreferrer">Vienna Libraries – children’s events</a></p></article>
+          '''}
+
+          anchor = '<article class="card"><h3>Wiener Herbst Camps 2026</h3>'
+          for fn, block in blocks.items():
+              p=Path(fn); t=p.read_text(encoding='utf-8')
+              if 'official-citywide-additions-20260910' not in t:
+                  if anchor not in t: raise SystemExit(f'anchor missing: {fn}')
+                  t=t.replace(anchor, block+anchor, 1)
+              p.write_text(t, encoding='utf-8')
+
+          for fn in ['index.html','de/index.html','en/index.html']:
+              p=Path(fn); t=p.read_text(encoding='utf-8')
+              import re
+              t=re.sub(r'<script src="(?:\.\./)?audit-fixes\.js\?v=[^"]+" defer></script>','',t)
+              p.write_text(t, encoding='utf-8')
+          PY
+
+      - name: Strict structural and privacy audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html && test -f de/index.html && test -f en/index.html
+          test -f stadt-wien/index.html && test -f de/stadt-wien/index.html && test -f en/stadt-wien/index.html
+          ! grep -R "WHC26-" -n --exclude-dir=.git .
+          ! grep -R "audit-fixes.js" -n --include='*.html' .
+          ! grep -R 'name="robots" content="index,follow' -n --include='*.html' .
+          grep -q 'name="robots" content="noindex,nofollow' index.html
+          grep -q 'name="robots" content="noindex,nofollow' stadt-wien/index.html
+          grep -q 'Disallow: /' robots.txt
+          for f in stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html; do
+            test "$(grep -o '<article class="card">' "$f" | wc -l)" -ge 12
+            grep -q 'WIENXTRA Kinderaktiv' "$f"
+            grep -q 'WIENXTRA Ferienspiel' "$f"
+            grep -q 'buechereien.wien.gv.at' "$f"
+          done
+          ! grep -Eqi 'gyermek|ingyenes|helyszín|jelentkezés|tartalom|kapcsolat|időpont' de/stadt-wien/index.html
+          ! grep -Eqi 'gyermek|ingyenes|helyszín|jelentkezés|tartalom|kapcsolat|időpont' en/stadt-wien/index.html
+          node --check app.js
+          node --check de/app.js
+          node --check en/app.js
+
+      - name: Audit external links and write report
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess, datetime
+          files=['index.html','de/index.html','en/index.html','stadt-wien/index.html','de/stadt-wien/index.html','en/stadt-wien/index.html']
+          urls=[]
+          for fn in files:
+              text=Path(fn).read_text(encoding='utf-8')
+              urls += re.findall(r'href="(https://[^"]+)"', text)
+          urls=sorted(set(urls))
+          rows=[]
+          for u in urls:
+              try:
+                  cp=subprocess.run(['curl','-L','-sS','--max-time','20','-o','/dev/null','-w','%{http_code}',u],capture_output=True,text=True)
+                  code=cp.stdout.strip() or '000'
+              except Exception:
+                  code='000'
+              status='OK' if code.startswith(('2','3')) else ('REVIEW' if code in ('401','403','405','429') else 'FAIL')
+              rows.append((u,code,status))
+          hard=[r for r in rows if r[2]=='FAIL']
+          out=['# Bunte strict audit – 2026-09-10','',
+               'Scope: HU/DE/EN main pages, City of Vienna programme directory, privacy/indexing controls, JavaScript syntax and external links.','',
+               '## Result',
+               f'- External links checked: {len(rows)}',
+               f'- Hard link failures: {len(hard)}',
+               '- Personal Herbst Camp booking codes: absent',
+               '- Google/AI indexing directives: noindex + robots disallow retained',
+               '- HU/DE/EN City programme pages: structurally present and language contamination check passed',
+               '- Stale audit-fixes.js references: removed',
+               '', '## External link status']
+          out += [f'- {s} `{c}` {u}' for u,c,s in rows]
+          if hard:
+              out += ['', '## Blocking issues', *[f'- {u} returned {c}' for u,c,s in hard]]
+          else:
+              out += ['', '## Blocking issues', '- None detected by this audit.']
+          Path('AUDIT_2026-09-10.md').write_text('\n'.join(out)+'\n',encoding='utf-8')
+          if hard:
+              raise SystemExit('Hard external link failures detected; see audit report')
+          PY
+
+      - name: Commit expansion and audit report
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Expand official Vienna programmes and pass strict audit [city-audit]"
+          git push
