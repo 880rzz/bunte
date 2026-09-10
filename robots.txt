@@ -1,4 +1,42 @@
 User-agent: *
 Allow: /
+Disallow: /herbst/
+Disallow: /de/herbst/
+Disallow: /en/herbst/
+
+User-agent: GPTBot
+Disallow: /herbst/
+Disallow: /de/herbst/
+Disallow: /en/herbst/
+
+User-agent: OAI-SearchBot
+Disallow: /herbst/
+Disallow: /de/herbst/
+Disallow: /en/herbst/
+
+User-agent: ClaudeBot
+Disallow: /herbst/
+Disallow: /de/herbst/
+Disallow: /en/herbst/
+
+User-agent: Google-Extended
+Disallow: /herbst/
+Disallow: /de/herbst/
+Disallow: /en/herbst/
+
+User-agent: PerplexityBot
+Disallow: /herbst/
+Disallow: /de/herbst/
+Disallow: /en/herbst/
+
+User-agent: CCBot
+Disallow: /herbst/
+Disallow: /de/herbst/
+Disallow: /en/herbst/
+
+User-agent: Bytespider
+Disallow: /herbst/
+Disallow: /de/herbst/
+Disallow: /en/herbst/
 
 Sitemap: https://bunte.vipach.at/sitemap.xml
