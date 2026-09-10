@@ -1,0 +1,56 @@
+name: Wire distance system
+on:
+  push:
+    paths:
+      - '.github/workflows/wire-distance.yml'
+permissions:
+  contents: write
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire scripts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          files={
+            'index.html':'distance-system.js?v=20260910-1',
+            'de/index.html':'../distance-system.js?v=20260910-1',
+            'en/index.html':'../distance-system.js?v=20260910-1',
+            'stadt-wien/index.html':'../distance-system.js?v=20260910-1',
+            'de/stadt-wien/index.html':'../../distance-system.js?v=20260910-1',
+            'en/stadt-wien/index.html':'../../distance-system.js?v=20260910-1',
+          }
+          for fn,src in files.items():
+            p=Path(fn); t=p.read_text(encoding='utf-8')
+            tag=f'<script src="{src}" defer></script>'
+            if 'distance-system.js' not in t:
+              if '</body>' not in t: raise SystemExit('missing body: '+fn)
+              t=t.replace('</body>',tag+'</body>',1)
+              p.write_text(t,encoding='utf-8')
+          PY
+      - name: Strict checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check distance-system.js
+          for f in index.html de/index.html en/index.html stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html; do
+            grep -q 'distance-system.js' "$f"
+            grep -q 'name="robots" content="noindex,nofollow' "$f"
+          done
+          grep -q 'Schulgasse 57, 1180 Wien' distance-system.js
+          grep -q 'routing.openstreetmap.de' distance-system.js
+          grep -q 'photon.komoot.io' distance-system.js
+          grep -q 'google.com/maps/dir' distance-system.js
+          ! grep -R 'WHC26-' -n --include='*.html' --include='*.js' .
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html de/index.html en/index.html stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Wire Google Maps and BMI-style distance system"
+          git push
