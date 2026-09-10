@@ -1,0 +1,66 @@
+name: City content fix
+on:
+  push:
+    paths: ['.github/workflows/city-content-fix.yml']
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update verified content
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          old='https://prod.skrapid.at/aktuelles/2026/08/sk-rapid-herbstcamp-2026/'
+          new='https://www.skrapid.at/aktuelles/2026/09/sk-rapid-herbstcamp-2026/'
+          for fn in ['index.html','de/index.html','en/index.html']:
+              p=Path(fn); t=p.read_text(encoding='utf-8').replace(old,new)
+              t=re.sub(r'<script src="(?:\.\./)?audit-fixes\.js\?v=[^"]+" defer></script>','',t)
+              p.write_text(t,encoding='utf-8')
+          cards={
+          'stadt-wien/index.html':'''<!-- city-extra -->
+<article class="card"><h3>WIENXTRA Kinderaktiv</h3><p><b>Kor:</b> családok és gyerekek; eseményenként külön korhatár. <b>Tartalom:</b> egész éves, ingyenes vagy kedvező árú kulturális, sport-, természet-, játék- és kreatív programok Bécsben.</p><p><b>Időpont/helyszín:</b> havonta változik; a hivatalos naptár kor, dátum, helyszín és ingyenesség szerint szűrhető. <b>Kapcsolat:</b> WIENXTRA-Kinderaktiv, Lassallestraße 3, 1020 Wien · kinderaktiv@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Aktuális programok</a> · <a href="https://wienxtra.at/kinderaktiv/app/" target="_blank" rel="noopener noreferrer">Kinderaktiv-App</a></p></article>
+<article class="card"><h3>WIENXTRA Ferienspiel</h3><p><b>Kor:</b> 6–13 év. <b>Tartalom:</b> iskolai szünetekben játék, kézműves, felfedező, színházi, mozi-, múzeumi, sport- és akcióprogramok; sok ajánlat ingyenes vagy kedvezményes.</p><p><b>Időpont/helyszín:</b> a téli, félévi és nyári szünetekben, Bécs-szerte. <b>Kapcsolat:</b> WIENXTRA-Ferienspiel, Lassallestraße 3, 1020 Wien · +43 1 909 4000 84396 · ferienspiel@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Aktuális Ferienspiel-programok</a></p></article>
+<article class="card"><h3>Büchereien Wien – gyermekprogramok</h3><p><b>Kor:</b> 0–14 év. <b>Tartalom:</b> egész éves gyermek- és ifjúsági program, felolvasásokkal, zenei, kreatív, nyelvi és felfedező foglalkozásokkal.</p><p><b>Időpont/helyszín:</b> a bécsi könyvtári hálózat fiókjaiban, folyamatosan frissülő eseménynaptár szerint. <b>Kapcsolat:</b> Urban-Loritz-Platz 2a, 1070 Wien · +43 1 4000-84500 · bib.auskunft@buechereien.wien.gv.at.</p><p><a href="https://buechereien.wien.gv.at/B%C3%BCchereien-Wien/Veranstaltungen/Kinder" target="_blank" rel="noopener noreferrer">Gyermekesemények</a></p></article>
+''',
+          'de/stadt-wien/index.html':'''<!-- city-extra -->
+<article class="card"><h3>WIENXTRA Kinderaktiv</h3><p><b>Zielgruppe:</b> Familien und Kinder; Altersangaben je Veranstaltung. <b>Inhalt:</b> ganzjährig kostenlose oder günstige Kultur-, Sport-, Natur-, Spiel- und Kreativangebote in Wien.</p><p><b>Termine/Orte:</b> monatlich wechselnd; der offizielle Kalender ist nach Alter, Datum, Standort und kostenlosen Angeboten filterbar. <b>Kontakt:</b> WIENXTRA-Kinderaktiv, Lassallestraße 3, 1020 Wien · kinderaktiv@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Aktuelle Programme</a> · <a href="https://wienxtra.at/kinderaktiv/app/" target="_blank" rel="noopener noreferrer">Kinderaktiv-App</a></p></article>
+<article class="card"><h3>WIENXTRA Ferienspiel</h3><p><b>Alter:</b> 6–13 Jahre. <b>Inhalt:</b> in den Schulferien Spielen, Basteln, Forschen, Theater, Kino, Museum, Sport und Action; viele Angebote sind kostenlos oder vergünstigt.</p><p><b>Termine/Orte:</b> in Winter-, Semester- und Sommerferien in ganz Wien. <b>Kontakt:</b> WIENXTRA-Ferienspiel, Lassallestraße 3, 1020 Wien · +43 1 909 4000 84396 · ferienspiel@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Aktuelle Ferienspiel-Angebote</a></p></article>
+<article class="card"><h3>Büchereien Wien – Kinderprogramm</h3><p><b>Alter:</b> 0–14 Jahre. <b>Inhalt:</b> ganzjähriges Kinder- und Jugendprogramm mit Lesungen sowie Musik-, Kreativ-, Sprach- und Entdeckungsangeboten.</p><p><b>Termine/Orte:</b> in den Zweigstellen der Büchereien Wien laut laufend aktualisiertem Veranstaltungskalender. <b>Kontakt:</b> Urban-Loritz-Platz 2a, 1070 Wien · +43 1 4000-84500 · bib.auskunft@buechereien.wien.gv.at.</p><p><a href="https://buechereien.wien.gv.at/B%C3%BCchereien-Wien/Veranstaltungen/Kinder" target="_blank" rel="noopener noreferrer">Kinderveranstaltungen</a></p></article>
+''',
+          'en/stadt-wien/index.html':'''<!-- city-extra -->
+<article class="card"><h3>WIENXTRA Kinderaktiv</h3><p><b>Target group:</b> families and children; age ranges vary by event. <b>Content:</b> year-round free or low-cost culture, sport, nature, games and creative activities across Vienna.</p><p><b>Dates/locations:</b> updated monthly; the official calendar can be filtered by age, date, location and free events. <b>Contact:</b> WIENXTRA-Kinderaktiv, Lassallestraße 3, 1020 Vienna · kinderaktiv@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Current programme</a> · <a href="https://wienxtra.at/kinderaktiv/app/" target="_blank" rel="noopener noreferrer">Kinderaktiv app</a></p></article>
+<article class="card"><h3>WIENXTRA Ferienspiel</h3><p><b>Age:</b> 6–13. <b>Content:</b> school-holiday games, crafts, discovery, theatre, cinema, museums, sport and action; many activities are free or discounted.</p><p><b>Dates/locations:</b> during winter, semester and summer holidays across Vienna. <b>Contact:</b> WIENXTRA-Ferienspiel, Lassallestraße 3, 1020 Vienna · +43 1 909 4000 84396 · ferienspiel@wienxtra.at.</p><p><a href="https://wienxtra.at/kinder/kinderaktiv/" target="_blank" rel="noopener noreferrer">Current Ferienspiel activities</a></p></article>
+<article class="card"><h3>Vienna Libraries – children’s programme</h3><p><b>Age:</b> 0–14. <b>Content:</b> year-round children’s and youth events including readings, music, creative, language and discovery activities.</p><p><b>Dates/locations:</b> across Vienna Libraries branches according to the continuously updated events calendar. <b>Contact:</b> Urban-Loritz-Platz 2a, 1070 Vienna · +43 1 4000-84500 · bib.auskunft@buechereien.wien.gv.at.</p><p><a href="https://buechereien.wien.gv.at/B%C3%BCchereien-Wien/Veranstaltungen/Kinder" target="_blank" rel="noopener noreferrer">Children’s events</a></p></article>
+'''}
+          anchor='<article class="card"><h3>Wiener Herbst Camps 2026</h3>'
+          for fn,block in cards.items():
+              p=Path(fn); t=p.read_text(encoding='utf-8')
+              if '<!-- city-extra -->' not in t:
+                  t=t.replace(anchor,block+anchor,1)
+              p.write_text(t,encoding='utf-8')
+          PY
+      - name: Basic integrity checks
+        shell: bash
+        run: |
+          set -e
+          ! grep -R 'audit-fixes.js' -n --include='*.html' .
+          ! grep -R 'WHC26-' -n --include='*.html' --include='*.js' .
+          grep -q 'Disallow: /' robots.txt
+          grep -q 'WIENXTRA Kinderaktiv' stadt-wien/index.html
+          grep -q 'Büchereien Wien' de/stadt-wien/index.html
+          grep -q 'Vienna Libraries' en/stadt-wien/index.html
+          node --check app.js && node --check de/app.js && node --check en/app.js
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'Add verified city programmes and fix stale links [city]'
+          git push
