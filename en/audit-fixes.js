@@ -13,6 +13,12 @@
     const p = programs.find(x => x.id === id);
     if (p && !p.note.includes('16x')) p.note += ' The handwritten “16x” note conflicts with the 12 sessions in the spreadsheet and the 12 actual course dates listed, so it is treated only as an unconfirmed handwritten note.';
   });
+  ['singschule-di','singschule-do'].forEach(id => {
+    const p = programs.find(x => x.id === id);
+    if (!p) return;
+    p.contact = 'https://www.wien.gv.at/bildung/musikschule-gesangsunterricht-stimmbildung-chor · in-person registration in September at the local Singschule location; local slot: 18 Sep 2026, 17:00–18:30, Top 38 · 0699 12460260';
+    if (!p.note.includes('City of Vienna Singschule')) p.note += ' The City of Vienna Singschule lists Wiener KinderStimmen generally for Grades 1–4 in 2026/27, while the local Bunte Schule handout provides concrete time slots only for Grades 2–4; therefore the local offer is shown here as Grades 2–4.';
+  });
   linkify = function(text){
     return text.split(' · ').map(part => {
       const s = part.trim();
