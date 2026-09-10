@@ -1,0 +1,80 @@
+name: Optimize distance UX
+on:
+  push:
+    paths:
+      - '.github/workflows/optimize-distance.yml'
+permissions:
+  contents: write
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Optimize distance calculation and multilingual UX
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('distance-system.js')
+          t=p.read_text(encoding='utf-8')
+
+          # Extend localized strings without changing existing translations.
+          repls={
+            "multiple:'Standorte',km:'km',min:'Min.'":"multiple:'Standorte',km:'km',min:'Min.',sort:'Sortierung',nearest:'Nächste zuerst',fastest:'Kürzeste Fahrzeit',limit:'Max. Fahrzeit',all:'Alle',verifiedNote:'44 aktuell eindeutig zuordenbare Adressen aus der veröffentlichten Standortliste; die Stadt Wien kommuniziert insgesamt 47 Standorte.',variableNote:'Wechselnder Veranstaltungsort – Entfernung erst für einen konkret ausgewählten Termin sinnvoll.'",
+            "multiple:'Locations',km:'km',min:'min'":"multiple:'Locations',km:'km',min:'min',sort:'Sort',nearest:'Nearest first',fastest:'Shortest travel time',limit:'Max travel time',all:'All',verifiedNote:'44 currently unambiguously identified addresses from the published location list; the City of Vienna communicates 47 locations in total.',variableNote:'Variable event location – distance is meaningful only after choosing a specific event.'",
+            "multiple:'Helyszínek',km:'km',min:'perc'":"multiple:'Helyszínek',km:'km',min:'perc',sort:'Rendezés',nearest:'Legközelebbi elöl',fastest:'Legrövidebb menetidő',limit:'Max. menetidő',all:'Mind',verifiedNote:'44 jelenleg egyértelműen azonosítható cím a közzétett helyszínlistából; a Stadt Wien összesen 47 helyszínt kommunikál.',variableNote:'Változó eseményhelyszín – távolságot csak konkrét esemény kiválasztása után érdemes számolni.'"
+          }
+          for a,b in repls.items():
+            if a not in t: raise SystemExit('localization anchor missing: '+a[:20])
+            t=t.replace(a,b,1)
+
+          panel_new=r'''function panel(){if(document.getElementById('distancePanel'))return;var hero=document.querySelector('.hero .wrap')||document.querySelector('main');if(!hero)return;var p=document.createElement('section');p.id='distancePanel';p.className='distance-panel';p.innerHTML='<h2>'+esc(L.title)+'</h2><p>'+esc(L.intro)+'</p><div class="distance-form"><label><strong>'+esc(L.address)+'</strong><br><input class="distance-input" id="distanceAddress" type="text" autocomplete="street-address" placeholder="'+esc(L.placeholder)+'"></label><label class="distance-consent"><input id="distanceConsent" type="checkbox"><span><strong>'+esc(L.consent)+'</strong><br>'+esc(L.privacy)+'</span></label><div class="distance-row" role="group"><button type="button" class="distance-mode active" data-dist-mode="car">'+esc(L.car)+'</button><button type="button" class="distance-mode" data-dist-mode="walk">'+esc(L.walk)+'</button><button type="button" class="distance-mode" data-dist-mode="transit">'+esc(L.transit)+'</button></div><div class="distance-row"><label class="distance-select"><span>'+esc(L.sort)+'</span><select id="distanceSort"><option value="nearest">'+esc(L.nearest)+'</option><option value="fastest">'+esc(L.fastest)+'</option></select></label><label class="distance-select"><span>'+esc(L.limit)+'</span><select id="distanceLimit"><option value="all">'+esc(L.all)+'</option><option value="15">15 '+esc(L.min)+'</option><option value="30">30 '+esc(L.min)+'</option><option value="45">45 '+esc(L.min)+'</option></select></label></div><div class="distance-row"><button type="button" class="btn" id="distanceCalc">'+esc(L.calc)+'</button><button type="button" class="btn ghost" id="distanceCurrent">'+esc(L.current)+'</button></div><div class="distance-status" id="distanceStatus" role="status"></div></div>';hero.appendChild(p);bindPanel()}'''
+          t,n=re.subn(r"function panel\(\)\{.*?\}\nfunction fetchTimeout",panel_new+'\nfunction fetchTimeout',t,count=1,flags=re.S)
+          if n!=1: raise SystemExit('panel replacement failed')
+
+          calc_new=r'''function activeMapLinks(){return [].slice.call(document.querySelectorAll('.map-destination')).filter(function(a){var d=a.closest('details');if(d&&!d.open)return false;return a.offsetParent!==null})}
+function sortAndLimitLinks(){var sort=document.getElementById('distanceSort')?.value||'nearest',limit=document.getElementById('distanceLimit')?.value||'all',max=limit==='all'?Infinity:+limit;document.querySelectorAll('.map-destinations').forEach(function(box){var host=box.querySelector('.map-more')||box,links=[].slice.call(host.querySelectorAll(':scope > .map-destination, :scope > a.map-destination'));if(!links.length)links=[].slice.call(host.querySelectorAll('.map-destination'));links.forEach(function(a){var m=+a.dataset.distMin,k=+a.dataset.distKm;a.hidden=Number.isFinite(m)&&m>max});links.sort(function(a,b){var av=sort==='fastest'?+a.dataset.distMin:+a.dataset.distKm,bv=sort==='fastest'?+b.dataset.distMin:+b.dataset.distKm;if(!Number.isFinite(av))av=1e9;if(!Number.isFinite(bv))bv=1e9;return av-bv}).forEach(function(a){host.appendChild(a)})})}
+async function calculate(origin){var mode=document.querySelector('[data-dist-mode].active')?.dataset.distMode||'car',links=activeMapLinks(),st=document.getElementById('distanceStatus');st.textContent=L.statusReady;var groups={};links.forEach(function(a){var dest=a.dataset.mapDest;(groups[dest]||(groups[dest]=[])).push(a);a.href=mapsUrl(dest,origin,mode)});var keys=Object.keys(groups),idx=0,workers=Math.min(4,keys.length);async function work(){while(idx<keys.length){var dest=keys[idx++],arr=groups[dest],exact=arr[0].dataset.mapExact==='1';if(!exact){arr.forEach(function(a){a.querySelector('.distance-result').textContent=L.distanceUnavailable;a.removeAttribute('data-dist-km');a.removeAttribute('data-dist-min')});continue}arr.forEach(function(a){a.classList.add('pending')});var g=await geocode(dest);if(!g){arr.forEach(function(a){a.querySelector('.distance-result').textContent=L.distanceUnavailable;a.classList.remove('pending')});continue}if(mode==='transit'){var straight=haversine(origin,g);arr.forEach(function(a){a.querySelector('.distance-result').textContent=straight.toFixed(1)+' '+L.km+' · '+L.maps;a.dataset.distKm=straight.toFixed(3);a.removeAttribute('data-dist-min');a.classList.remove('pending')});continue}var r=await route(origin,g,mode);arr.forEach(function(a){var res=a.querySelector('.distance-result');res.textContent=r?(r.estimated?'≈ ':'')+r.km.toFixed(1)+' '+L.km+' · '+(r.estimated?'≈ ':'')+r.min+' '+L.min:L.distanceUnavailable;if(r){a.dataset.distKm=r.km;a.dataset.distMin=r.min}else{a.removeAttribute('data-dist-km');a.removeAttribute('data-dist-min')}a.classList.remove('pending')})}}await Promise.all(Array.from({length:workers},work));sortAndLimitLinks();st.textContent=''}'''
+          t,n=re.subn(r"async function calculate\(origin\)\{.*?\}\nfunction bindPanel",calc_new+'\nfunction bindPanel',t,count=1,flags=re.S)
+          if n!=1: raise SystemExit('calculate replacement failed')
+
+          bind_anchor="function bindPanel(){var mode='car';"
+          if bind_anchor not in t: raise SystemExit('bind anchor missing')
+          t=t.replace(bind_anchor,"function bindPanel(){var mode='car';document.getElementById('distanceSort')?.addEventListener('change',sortAndLimitLinks);document.getElementById('distanceLimit')?.addEventListener('change',sortAndLimitLinks);",1)
+
+          # Add transparent source-status notes for broad/variable location groups.
+          city_anchor="if(items.length>8){box.innerHTML='<details class=\"map-more\"><summary><strong>'+esc(L.multiple)+' · '+items.length+'</strong></summary>'+links+'</details>'}else{box.innerHTML='<strong>'+esc(items.length>1?L.multiple:L.route)+'</strong><br>'+links}card.appendChild(box)"
+          city_repl="if(items.length>8){box.innerHTML='<details class=\"map-more\"><summary><strong>'+esc(L.multiple)+' · '+items.length+'</strong></summary>'+links+'</details>'}else{box.innerHTML='<strong>'+esc(items.length>1?L.multiple:L.route)+'</strong><br>'+links}var title=(h.textContent||'').trim();if(title==='Wiener KinderStimmen / Singschule Wien'){box.insertAdjacentHTML('beforeend','<small class=\"map-note\">'+esc(L.verifiedNote)+'</small>')}if(/WIENXTRA Kinderaktiv|WIENXTRA Ferienspiel|Summer City Camps|Wiener Herbst Camps 2026/.test(title)){box.insertAdjacentHTML('beforeend','<small class=\"map-note\">'+esc(L.variableNote)+'</small>')}card.appendChild(box)"
+          if city_anchor not in t: raise SystemExit('city card anchor missing')
+          t=t.replace(city_anchor,city_repl,1)
+
+          style_anchor='.distance-status{min-height:1.4em;font-size:.9rem}'
+          style_add=style_anchor+'.distance-select{display:flex;flex-direction:column;gap:4px;font-size:.82rem}.distance-select select{min-height:44px;padding:9px 12px;border:1px solid #c7c7cc;border-radius:12px;background:#fff;font:inherit}.map-destination[hidden]{display:none!important}'
+          if style_anchor not in t: raise SystemExit('style anchor missing')
+          t=t.replace(style_anchor,style_add,1)
+
+          p.write_text(t,encoding='utf-8')
+          PY
+      - name: Strict audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check distance-system.js
+          grep -q 'activeMapLinks' distance-system.js
+          grep -q 'Promise.all' distance-system.js
+          grep -q 'Math.min(4,keys.length)' distance-system.js
+          grep -q 'distanceSort' distance-system.js
+          grep -q 'distanceLimit' distance-system.js
+          grep -q '44 jelenleg egyértelműen' distance-system.js
+          grep -q '44 aktuell eindeutig' distance-system.js
+          grep -q '44 currently unambiguously' distance-system.js
+          for f in index.html de/index.html en/index.html stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html; do grep -q 'distance-system.js' "$f"; done
+          ! grep -R 'WHC26-' -n --include='*.html' --include='*.js' .
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add distance-system.js
+          git commit -m "Optimize multilingual distance UX and routing load"
+          git push
