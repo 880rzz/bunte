@@ -1,0 +1,74 @@
+name: Deep audit Stadt Wien filters
+on:
+  push:
+    paths:
+      - '.github/workflows/audit-deep-stadt-wien-filters.yml'
+permissions:
+  contents: write
+jobs:
+  audit-and-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump filter cache version
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for f in ['stadt-wien/index.html','de/stadt-wien/index.html','en/stadt-wien/index.html']:
+              p=Path(f); t=p.read_text(encoding='utf-8')
+              t=t.replace('stadt-wien-filters.js?v=20260910-1','stadt-wien-filters.js?v=20260910-2')
+              p.write_text(t,encoding='utf-8')
+          PY
+      - name: Deep rule audit
+        run: |
+          set -euo pipefail
+          node --check stadt-wien-filters.js
+          grep -q "function ageMatch" stadt-wien-filters.js
+          grep -q "function themeMatch" stadt-wien-filters.js
+          grep -q "function districtMatch" stadt-wien-filters.js
+          grep -q "age:'dynamic'" stadt-wien-filters.js
+          grep -q "primary:'swim'" stadt-wien-filters.js
+          grep -q "primary:'camp'" stadt-wien-filters.js
+          grep -q "primary:'culture'" stadt-wien-filters.js
+          grep -q "grades:\[1,2,3,4\]" stadt-wien-filters.js
+          grep -q "v==='vs'" stadt-wien-filters.js
+          grep -q "for(var i=0;i<=25;i++)" stadt-wien-filters.js
+          grep -q "filtersActive" stadt-wien-filters.js
+          grep -q "stadt-wien-filter-applied" stadt-wien-filters.js
+          ! grep -q "\['0-3','0–3'\]" stadt-wien-filters.js
+          for f in stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html; do
+            grep -q 'stadt-wien-filters.js?v=20260910-2' "$f"
+            grep -q 'distance-system.js' "$f"
+            grep -q 'stadt-wien-sort-sync.js' "$f"
+            grep -q 'whatsapp-report.js' "$f"
+            grep -q 'noindex,nofollow' "$f"
+          done
+          python3 - <<'PY'
+          # Expected rule matrix: exact ages, grade-only handling, principal/related topics.
+          def age(r,v):
+              if v=='all': return True
+              if v=='vs':
+                  return bool(r.get('grades')) or (isinstance(r.get('age'),tuple) and r['age'][0] <= 10 and r['age'][1] >= 6)
+              a=r.get('age')
+              return isinstance(a,tuple) and a[0] <= int(v) <= a[1]
+          def theme(r,v): return v=='all' or r['primary']==v or v in r.get('related',[])
+          learn={'age':None,'grades':[1,2,3,4],'primary':'learning','related':[]}
+          sing={'age':None,'grades':[1,2,3,4],'primary':'music','related':[]}
+          swim={'age':(5,12),'grades':None,'primary':'swim','related':['sport']}
+          kids={'age':'dynamic','grades':None,'primary':'culture','related':['creative','nature','sport']}
+          assert age(learn,'vs') and not age(learn,'6')
+          assert age(sing,'vs') and not age(sing,'10')
+          assert age(swim,'5') and age(swim,'12') and not age(swim,'4') and not age(swim,'13')
+          assert not age(kids,'8')
+          assert theme(swim,'swim') and theme(swim,'sport') and not theme(swim,'camp')
+          assert theme(kids,'culture') and theme(kids,'nature') and not theme(kids,'music')
+          print('rule matrix PASS')
+          PY
+      - name: Commit cache bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Bump deep Stadt Wien filter rules on all languages"
+          git push
