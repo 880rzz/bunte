@@ -1,0 +1,92 @@
+name: Expand verified distance locations
+on:
+  push:
+    paths:
+      - '.github/workflows/expand-distance-locations.yml'
+permissions:
+  contents: write
+jobs:
+  expand:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand verified 2026 locations
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('distance-system.js')
+          t=p.read_text(encoding='utf-8')
+
+          sings=[
+          ('Stubenbastei 3','Stubenbastei 3, 1010 Wien, Austria'),('Novaragasse 30','Novaragasse 30, 1020 Wien, Austria'),('Taborstraße 120','Taborstraße 120, 1020 Wien, Austria'),('Petrusgasse 10','Petrusgasse 10, 1030 Wien, Austria'),('Reisnerstraße 43','Reisnerstraße 43, 1030 Wien, Austria'),('Sebastianplatz 3','Sebastianplatz 3, 1030 Wien, Austria'),('Phorusgasse 4','Phorusgasse 4, 1040 Wien, Austria'),('St.-Elisabeth-Platz 8','St.-Elisabeth-Platz 8, 1040 Wien, Austria'),('Corneliusgasse 6','Corneliusgasse 6, 1060 Wien, Austria'),('Sonnenuhrgasse 3-5','Sonnenuhrgasse 3-5, 1060 Wien, Austria'),('Skodagasse 20','Skodagasse 20, 1080 Wien, Austria'),('Piaristengasse 43','Piaristengasse 43, 1080 Wien, Austria'),('Marktgasse 31','Marktgasse 31, 1090 Wien, Austria'),('Galileigasse 5','Galileigasse 5, 1090 Wien, Austria'),('Grünentorgasse 9','Grünentorgasse 9, 1090 Wien, Austria'),('Hahngasse 35','Hahngasse 35, 1090 Wien, Austria'),('Gottschalkgasse 10','Gottschalkgasse 10, 1110 Wien, Austria'),('Herderplatz','Herderplatz, 1110 Wien, Austria'),('Meidlinger Hauptstraße 73','Meidlinger Hauptstraße 73, 1120 Wien, Austria'),('Bischoffgasse 10','Bischoffgasse 10, 1120 Wien, Austria'),('Rothenburgstraße 1','Rothenburgstraße 1, 1120 Wien, Austria'),('Karl-Löwe-Gasse 20','Karl-Löwe-Gasse 20, 1120 Wien, Austria'),('Am Platz 2','Am Platz 2, 1130 Wien, Austria'),('Hietzinger Hauptstraße 166','Hietzinger Hauptstraße 166, 1130 Wien, Austria'),('Deutschordenstraße 4','Deutschordenstraße 4, 1140 Wien, Austria'),('Felbigergasse 97','Felbigergasse 97, 1140 Wien, Austria'),('Linzer Straße 419','Linzer Straße 419, 1140 Wien, Austria'),('Karl-Toldt-Weg 12','Karl-Toldt-Weg 12, 1140 Wien, Austria'),('Märzstraße 178-180','Märzstraße 178-180, 1140 Wien, Austria'),('Herbststraße 86','Herbststraße 86, 1160 Wien, Austria'),('Julius-Meinl-Gasse 1','Julius-Meinl-Gasse 1, 1160 Wien, Austria'),('Landsteinergasse 4','Landsteinergasse 4, 1160 Wien, Austria'),('Halirschgasse 25','Halirschgasse 25, 1170 Wien, Austria'),('Knollgasse 4-6','Knollgasse 4-6, 1170 Wien, Austria'),('Schulgasse 57','Schulgasse 57, 1180 Wien, Austria'),('Cottagegasse 17','Cottagegasse 17, 1180 Wien, Austria'),('Grinzinger Straße 88','Grinzinger Straße 88, 1190 Wien, Austria'),('Kreindlgasse 24','Kreindlgasse 24, 1190 Wien, Austria'),('Christian-Bucher-Gasse 14','Christian-Bucher-Gasse 14, 1210 Wien, Austria'),('Hinaysgasse 1','Hinaysgasse 1, 1210 Wien, Austria'),('Asperner Heldenplatz 3','Asperner Heldenplatz 3, 1220 Wien, Austria'),('Wulzendorfstraße 1','Wulzendorfstraße 1, 1220 Wien, Austria'),('Schüttaustraße 2','Schüttaustraße 2, 1220 Wien, Austria'),('Bendagasse 1-2','Bendagasse 1-2, 1230 Wien, Austria')]
+          mus=[
+          ('Leopoldstadt','Taborstraße 120, 1020 Wien, Austria'),('Landstraße','Otto-Preminger-Straße 1, 1030 Wien, Austria'),('Margareten','Bräuhausgasse 50, 1050 Wien, Austria'),('Alsergrund','D\'Orsaygasse 8, 1090 Wien, Austria'),('Favoriten','Landgutgasse 30, 1100 Wien, Austria'),('Simmering','Gottschalkgasse 10, 1110 Wien, Austria'),('Meidling','Wilhelmstraße 64, 1120 Wien, Austria'),('Rudolfsheim-Fünfhaus','Schwendergasse 41, 1150 Wien, Austria'),('Expositur Penzing','Deutschordenstraße 4, 1140 Wien, Austria'),('Ottakring','Thaliastraße 44, 1160 Wien, Austria'),('Hernals','Kalvarienberggasse 33, 1170 Wien, Austria'),('Döbling','Döblinger Hauptstraße 94, 1190 Wien, Austria'),('Brigittenau','Raffaelgasse 11, 1200 Wien, Austria'),('Floridsdorf','Hinaysgasse 1, 1210 Wien, Austria'),('Donaustadt','Schüttaustraße 2, 1220 Wien, Austria'),('Liesing','Josef-Kutscha-Gasse 1A, 1230 Wien, Austria')]
+          pools=[
+          ('Amalienbad','Reumannplatz 23, 1100 Wien, Austria'),('Brigittenauer Bad','Klosterneuburger Straße 93-97, 1200 Wien, Austria'),('Donaustädter Bad','Portnergasse 38, 1220 Wien, Austria'),('Döblinger Bad','Geweygasse 6-10, 1190 Wien, Austria'),('Floridsdorfer Bad','Franklinstraße 22, 1210 Wien, Austria'),('Großfeldsiedlungsbad','Oswald-Redlich-Straße 44, 1210 Wien, Austria'),('Hütteldorfer Bad','Linzer Straße 376, 1140 Wien, Austria'),('Ottakringer Bad','Johann-Staud-Straße 11, 1160 Wien, Austria'),('Simmeringer Bad','Florian-Hedorfer-Straße 5, 1110 Wien, Austria'),('Theresienbad','Hufelandgasse 3, 1120 Wien, Austria')]
+
+          def arr(items):
+              return '['+','.join("{l:%r,d:%r,x:true}"%(a,b) for a,b in items).replace('\\\'','\'')+']'
+          # Python repr uses single quotes; escape embedded apostrophe for JS.
+          def jsarr(items):
+              out=[]
+              for a,b in items:
+                  a=a.replace('\\','\\\\').replace("'","\\'")
+                  b=b.replace('\\','\\\\').replace("'","\\'")
+                  out.append("{l:'%s',d:'%s',x:true}"%(a,b))
+              return '['+','.join(out)+']'
+
+          replacements={
+            'Wiener KinderStimmen / Singschule Wien':jsarr(sings),
+            'Musikschulen Wien – hangszer, zene, kórus':jsarr(mus),
+            'Musikschulen Wien – Instrumente, Gesang und Ensembles':jsarr(mus),
+            'Vienna Music Schools – instruments, singing and ensembles':jsarr(mus),
+            'Stadt Wien Bäder – csoportos úszásoktatás':jsarr(pools),
+            'Stadt Wien Bäder – Gruppenschwimmkurse':jsarr(pools),
+            'City of Vienna pools – group swimming lessons':jsarr(pools),
+          }
+          for key,val in replacements.items():
+              pat=r"( '"+re.escape(key)+r"':)\[[^\n]*\]"
+              nt,n=re.subn(pat,lambda m:m.group(1)+val,t,count=1)
+              if n!=1:
+                  raise SystemExit('mapping not found: '+key)
+              t=nt
+
+          old="function cityCards(){document.querySelectorAll('.program-grid>.card').forEach(function(card){if(card.querySelector('.kv')||card.dataset.mapCityDone)return;var h=card.querySelector('h3');if(!h)return;var items=CITY[(h.textContent||'').trim()];if(!items)return;card.dataset.mapCityDone='1';var box=document.createElement('div');box.className='map-destinations';box.innerHTML='<strong>'+esc(items.length>1?L.multiple:L.route)+'</strong><br>'+items.map(function(x){return mapLink(x.l,x.d,x.x)}).join('');card.appendChild(box)})}"
+          new="function cityCards(){document.querySelectorAll('.program-grid>.card').forEach(function(card){if(card.querySelector('.kv')||card.dataset.mapCityDone)return;var h=card.querySelector('h3');if(!h)return;var items=CITY[(h.textContent||'').trim()];if(!items)return;card.dataset.mapCityDone='1';var box=document.createElement('div');box.className='map-destinations';var links=items.map(function(x){return mapLink(x.l,x.d,x.x)}).join('');if(items.length>8){box.innerHTML='<details class=\"map-more\"><summary><strong>'+esc(L.multiple)+' · '+items.length+'</strong></summary>'+links+'</details>'}else{box.innerHTML='<strong>'+esc(items.length>1?L.multiple:L.route)+'</strong><br>'+links}card.appendChild(box)})}"
+          if old not in t: raise SystemExit('cityCards anchor missing')
+          t=t.replace(old,new,1)
+          style_anchor='.map-destinations{margin-top:10px}'
+          t=t.replace(style_anchor,style_anchor+'.map-more summary{cursor:pointer;margin:4px 0 8px}.map-more[open] summary{margin-bottom:10px}',1)
+          p.write_text(t,encoding='utf-8')
+          PY
+      - name: Strict multilingual audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check distance-system.js
+          for f in index.html de/index.html en/index.html stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html; do
+            grep -q 'distance-system.js' "$f"
+            grep -q 'name="robots" content="noindex,nofollow' "$f"
+          done
+          grep -q 'Schulgasse 57, 1180 Wien' distance-system.js
+          grep -q 'Stubenbastei 3, 1010 Wien' distance-system.js
+          grep -q 'Bendagasse 1-2, 1230 Wien' distance-system.js
+          grep -q 'Bräuhausgasse 50, 1050 Wien' distance-system.js
+          grep -q 'Döblinger Hauptstraße 94, 1190 Wien' distance-system.js
+          grep -q 'Portnergasse 38, 1220 Wien' distance-system.js
+          grep -q 'Oswald-Redlich-Straße 44, 1210 Wien' distance-system.js
+          grep -q 'google.com/maps/dir' distance-system.js
+          grep -q 'routing.openstreetmap.de' distance-system.js
+          grep -q 'photon.komoot.io' distance-system.js
+          ! grep -R 'WHC26-' -n --include='*.html' --include='*.js' .
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add distance-system.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Expand verified 2026 map and distance locations"
+          git push
