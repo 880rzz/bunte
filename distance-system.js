@@ -37,6 +37,8 @@ var CITY={
  'Büchereien Wien – gyermekprogramok':[{l:'Büchereien Wien',d:'Urban-Loritz-Platz 2a, 1070 Wien, Austria',x:true}],
  'Büchereien Wien – Kinderprogramm':[{l:'Büchereien Wien',d:'Urban-Loritz-Platz 2a, 1070 Wien, Austria',x:true}],
  'Vienna Libraries – children’s programme':[{l:'Vienna Libraries',d:'Urban-Loritz-Platz 2a, 1070 Wien, Austria',x:true}],
+ 'Activity4u Herbstcamp':[{l:'Tennispoint Vienna',d:'Baumgasse 87, 1030 Wien, Austria',x:true}],
+ 'SK Rapid Herbstcamp 2026':[{l:'Allianz Stadion',d:'Gerhard-Hanappi-Platz 1, 1140 Wien, Austria',x:true}],
  'Wiener Herbst Camps 2026':[{l:'Ferien in Wien',d:'Wiener Herbst Camps, Wien, Austria',x:false}]
 };
 function cityCards(){document.querySelectorAll('.program-grid>.card').forEach(function(card){if(card.querySelector('.kv')||card.dataset.mapCityDone)return;var h=card.querySelector('h3');if(!h)return;var items=CITY[(h.textContent||'').trim()];if(!items)return;card.dataset.mapCityDone='1';var box=document.createElement('div');box.className='map-destinations';box.innerHTML='<strong>'+esc(items.length>1?L.multiple:L.route)+'</strong><br>'+items.map(function(x){return mapLink(x.l,x.d,x.x)}).join('');card.appendChild(box)})}
