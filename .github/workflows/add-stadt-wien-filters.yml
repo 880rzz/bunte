@@ -1,0 +1,54 @@
+name: Add Stadt Wien filters
+on:
+  push:
+    paths:
+      - '.github/workflows/add-stadt-wien-filters.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject multilingual filter script
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          files=['stadt-wien/index.html','de/stadt-wien/index.html','en/stadt-wien/index.html']
+          for f in files:
+              p=Path(f); t=p.read_text(encoding='utf-8')
+              if 'stadt-wien-filters.js' in t: continue
+              if f=='stadt-wien/index.html':
+                  old='<script src="../distance-system.js?v=20260910-1" defer></script>'
+                  new='<script src="../stadt-wien-filters.js?v=20260910-1" defer></script>'+old
+              else:
+                  old='<script src="../../distance-system.js?v=20260910-1" defer></script>'
+                  new='<script src="../../stadt-wien-filters.js?v=20260910-1" defer></script>'+old
+              if old not in t: raise SystemExit('script anchor missing: '+f)
+              p.write_text(t.replace(old,new,1),encoding='utf-8')
+          PY
+      - name: Strict audit
+        run: |
+          set -euo pipefail
+          node --check stadt-wien-filters.js
+          for f in stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html; do
+            grep -q 'stadt-wien-filters.js' "$f"
+            grep -q 'distance-system.js' "$f"
+            grep -q 'noindex,nofollow' "$f"
+          done
+          grep -q "Programok szűrése" stadt-wien-filters.js
+          grep -q "Programme filtern" stadt-wien-filters.js
+          grep -q "Filter programmes" stadt-wien-filters.js
+          grep -q "cityFilterAge" stadt-wien-filters.js
+          grep -q "cityFilterTheme" stadt-wien-filters.js
+          grep -q "cityFilterDistrict" stadt-wien-filters.js
+          grep -q "for(var i=1;i<=23;i++)" stadt-wien-filters.js
+          ! grep -R 'WHC26-' -n --include='*.html' --include='*.js' .
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Enable Stadt Wien age topic and district filters"
+          git push
