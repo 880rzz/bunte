@@ -13,6 +13,12 @@
     const p = programs.find(x => x.id === id);
     if (p && !p.note.includes('16x')) p.note += ' Die handschriftliche Angabe „16x“ stimmt weder mit den 12 Terminen der Tabelle noch mit den 12 tatsächlich aufgeführten Kursterminen überein und wird deshalb nur als bestätigungspflichtige Notiz behandelt.';
   });
+  ['singschule-di','singschule-do'].forEach(id => {
+    const p = programs.find(x => x.id === id);
+    if (!p) return;
+    p.contact = 'https://www.wien.gv.at/bildung/musikschule-gesangsunterricht-stimmbildung-chor · persönliche Anmeldung im September am lokalen Singschulstandort; lokaler Termin: 18.09.2026, 17:00–18:30, Top 38 · 0699 12460260';
+    if (!p.note.includes('städtische Singschule')) p.note += ' Die städtische Singschule nennt für Wiener KinderStimmen 2026/27 allgemein die 1.–4. Volksschulklasse als Zielgruppe. Das lokale Bunte-Schule-Infoblatt weist konkrete Zeitfenster jedoch nur für die 2.–4. Klasse aus; deshalb wird das lokale Angebot hier mit 2.–4. Klasse geführt.';
+  });
   linkify = function(text){
     return text.split(' · ').map(part => {
       const s = part.trim();
