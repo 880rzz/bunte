@@ -1,42 +1,38 @@
 User-agent: *
-Allow: /
-Disallow: /herbst/
-Disallow: /de/herbst/
-Disallow: /en/herbst/
+Disallow: /
+
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
 
 User-agent: GPTBot
-Disallow: /herbst/
-Disallow: /de/herbst/
-Disallow: /en/herbst/
+Disallow: /
 
 User-agent: OAI-SearchBot
-Disallow: /herbst/
-Disallow: /de/herbst/
-Disallow: /en/herbst/
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
 
 User-agent: ClaudeBot
-Disallow: /herbst/
-Disallow: /de/herbst/
-Disallow: /en/herbst/
+Disallow: /
+
+User-agent: Claude-SearchBot
+Disallow: /
 
 User-agent: Google-Extended
-Disallow: /herbst/
-Disallow: /de/herbst/
-Disallow: /en/herbst/
+Disallow: /
 
 User-agent: PerplexityBot
-Disallow: /herbst/
-Disallow: /de/herbst/
-Disallow: /en/herbst/
+Disallow: /
 
 User-agent: CCBot
-Disallow: /herbst/
-Disallow: /de/herbst/
-Disallow: /en/herbst/
+Disallow: /
 
 User-agent: Bytespider
-Disallow: /herbst/
-Disallow: /de/herbst/
-Disallow: /en/herbst/
+Disallow: /
 
-Sitemap: https://bunte.vipach.at/sitemap.xml
+User-agent: Applebot-Extended
+Disallow: /
