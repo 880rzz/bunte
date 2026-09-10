@@ -1,0 +1,26 @@
+name: Inspect distance system
+on:
+  push:
+    paths:
+      - '.github/workflows/inspect-distance.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect relevant code
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          t=Path('distance-system.js').read_text(encoding='utf-8')
+          for token in ['querySelectorAll(\'.map-destination\'','Promise.all','distanceCalc','async function','fetch(']:
+              print('\n###',token)
+              pos=0
+              while True:
+                  i=t.find(token,pos)
+                  if i<0: break
+                  print(t[max(0,i-800):min(len(t),i+1800)])
+                  pos=i+1
+          PY
