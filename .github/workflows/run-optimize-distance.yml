@@ -1,0 +1,35 @@
+name: Run optimize distance
+on:
+  push:
+    paths:
+      - '.github/workflows/run-optimize-distance.yml'
+permissions:
+  contents: write
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply patch
+        run: python3 tools/optimize_distance.py
+      - name: Audit
+        run: |
+          set -euo pipefail
+          node --check distance-system.js
+          grep -q 'activeMapLinks' distance-system.js
+          grep -q 'Promise.all' distance-system.js
+          grep -q 'Math.min(4,keys.length)' distance-system.js
+          grep -q 'distanceSort' distance-system.js
+          grep -q 'distanceLimit' distance-system.js
+          grep -q '44 jelenleg egyértelműen' distance-system.js
+          grep -q '44 aktuell eindeutig' distance-system.js
+          grep -q '44 currently unambiguously' distance-system.js
+          for f in index.html de/index.html en/index.html stadt-wien/index.html de/stadt-wien/index.html en/stadt-wien/index.html; do grep -q 'distance-system.js' "$f"; done
+          ! grep -R 'WHC26-' -n --include='*.html' --include='*.js' .
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add distance-system.js
+          git commit -m "Optimize multilingual distance UX and routing load"
+          git push
